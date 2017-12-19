@@ -28,6 +28,7 @@ for link in links:
     print("FETCHED LINK: ", link)    
     url = fetch_html(link)
     out_div = url.find("div", class_='dev-view-deviation')
+    print(out_div)
     res = [i['src'] for i in out_div.find_all("img", class_='dev-content-full')]
     split_name = res[INDEX_OF_HI_RES].split('/')
     print("SAVED AS: {} \n".format(split_name[INDEX_OF_NAME]))
