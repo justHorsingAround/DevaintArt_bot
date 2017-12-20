@@ -2,14 +2,17 @@ from bs4 import BeautifulSoup
 import requests
 import json
 
-def download(result):
+
+def download(result):  # dead code
     download = requests.get(result[0]['href'])
     return download
+
 
 def write_file(download, file_name):
     with open(file_name, 'wb') as fd:
             for chunk in download.iter_content(chunk_size=4096):
                 fd.write(chunk)
+
 
 def fetch_html(page_url):
     da_page = requests.get(page_url)    
@@ -17,7 +20,7 @@ def fetch_html(page_url):
     return mysoup
     
 
-def search_pictures(url, class_tag, class_name_one, class_name_two, tag_in_list):
+def search_pictures(url, class_tag, class_name_one, class_name_two, tag_in_list):  # not needed, delete later, json_request will do the job
     DIV = "div"
     soup = fetch_html(url)
     outer_div = soup.find(DIV, class_="torpedo-container")
@@ -49,20 +52,19 @@ def make_url(user_name):
     page_url += user_name.lower()
     page_url += '.deviantart.com/gallery/?catpath=/'
     return page_url
-    
 
 
 user_name = "dennyvixen" 
 
 page_url = make_url(user_name)
 
-class_name_one = 'folderview-art'
-class_name_two = 'torpedo-thumb-link'
-class_tag = 'a'
-tag_in_list = 'href'
-links = search_pictures(page_url, class_tag, class_name_one, class_name_two, tag_in_list)
+class_name_one = 'folderview-art'  # dead code 
+CLASS_NAME_FOR_TAG_A = 'torpedo-thumb-link'
+TAG_A = 'a'
+tag_in_list = 'href'  
+links = search_pictures(page_url, TAG_A, class_name_one, CLASS_NAME_FOR_TAG_A, tag_in_list)
 
-
+# fetching 'src' from 'img' tag, todo: make to fn
 INDEX_OF_HI_RES = 0
 INDEX_OF_NAME = -1
 for link in links:
@@ -83,7 +85,7 @@ json_request= {
 "dapiIid" : "0"}
 
 USER_AGEN = "Mozilla/5.0 (Windows NT 10.0;...) Gecko/20100101 Firefox/57.0"
-headers = {"user_agen" : USER_AGEN}
+HEADER = {"user_agen" : USER_AGEN}
 
 csrf = fetch_csrf(page_url)
 print(csrf)
@@ -96,10 +98,10 @@ link_set = set()
 offset_counter = 0
 temp_counter = 0
 while True:
-    req = requests.post(page_url, data=json_request, headers=headers)
+    req = requests.post(page_url, data=json_request, headers=HEADER)
     print("REQUEST --  ", req)
     json_soup = BeautifulSoup(req.text, 'html.parser')
-    out_div2 = [i['href'] for i in json_soup.find_all("a", class_="torpedo-thumb-link")]
+    out_div2 = [i['href'] for i in json_soup.find_all(TAG_A, class_= CLASS_NAME_FOR_TAG_A)]
     if len(out_div2) == 0:
         break
     else:
