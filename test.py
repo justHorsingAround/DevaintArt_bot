@@ -43,15 +43,18 @@ def fetch_csrf(url):
                     csrf = dict(csrf)
     return csrf
 
-json_request= {
-"username" : "LuleMT",
-"offset" : "24",
-"limit" : "24",
-"_csrf" : "",
-"dapiIid" : "0"}
+
+def make_url(user_name):
+    page_url = 'https://'
+    page_url += user_name.lower()
+    page_url += '.deviantart.com/gallery/?catpath=/'
+    return page_url
+    
 
 
-page_url = 'https://lulemt.deviantart.com/gallery/?catpath=/'
+user_name = "dennyvixen" 
+
+page_url = make_url(user_name)
 
 class_name_one = 'folderview-art'
 class_name_two = 'torpedo-thumb-link'
@@ -72,31 +75,44 @@ for link in links:
     
     write_file(requests.get(res[INDEX_OF_HI_RES]), split_name[INDEX_OF_NAME])
 
+json_request= {
+"username" : "",
+"offset" : "0",
+"limit" : "24",
+"_csrf" : "",
+"dapiIid" : "0"}
 
+USER_AGEN = "Mozilla/5.0 (Windows NT 10.0;...) Gecko/20100101 Firefox/57.0"
+headers = {"user_agen" : USER_AGEN}
 
 csrf = fetch_csrf(page_url)
 print(csrf)
+json_request["username"] = user_name
 json_request["_csrf"] = csrf['csrf']
 print(json_request)
 
-user_agent = "Mozilla/5.0 (Windows NT 10.0;...) Gecko/20100101 Firefox/57.0"
-headers = {"user_agen" : user_agent}
 
-req = requests.post(page_url, data=json_request, headers=headers)
-print("REQUEST --  ", req)
+link_set = set()
+offset_counter = 0
+temp_counter = 0
+while True:
+    req = requests.post(page_url, data=json_request, headers=headers)
+    print("REQUEST --  ", req)
+    json_soup = BeautifulSoup(req.text, 'html.parser')
+    out_div2 = [i['href'] for i in json_soup.find_all("a", class_="torpedo-thumb-link")]
+    if len(out_div2) == 0:
+        break
+    else:
+        link_set.update(out_div2)
 
-json_soup = BeautifulSoup(req.text, 'html.parser')
-out_div2 = [i['href'] for i in json_soup.find_all("a", class_="torpedo-thumb-link")]
+    offset_counter += 24
+    json_request["offset"] = str(offset_counter)
 
-'''tempr = []
-for j in out_div2:
-    print("J ------------------------", j)
-    res2 = [i['src'] for i in j.find_all("img")]
-    tempr.append(res2)
-    
-'''
-print(out_div2)
+    temp_counter += 1
+    print("TEMP COUNTER ------------------- ", temp_counter)
 
+print(link_set)
+print("LEN ---------------- ", len(link_set))
 print("-" * 50)
 print("OK")
 
