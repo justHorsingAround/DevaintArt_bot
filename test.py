@@ -46,6 +46,33 @@ def fetch_csrf(url):
                     csrf = dict(csrf)
     return csrf
 
+def fetch_src(links):
+    INDEX_OF_HI_RES = 0
+    INDEX_OF_NAME = -1
+
+    test_set = set()
+    test_counter = 1
+
+    for link in links:
+        print("NUMBER :: ", test_counter)
+        test_counter += 1
+        print("FETCHED LINK: ", link)    
+        soup_for_img_serach = fetch_html(link)
+        out_div = soup_for_img_serach.find("div", class_='dev-view-deviation')
+        res = [i for i in out_div.find_all("img", class_='dev-content-full')]
+        if not res:
+            print("This is not a picture or NSFW content")
+            continue
+        res = [j['src'] for j in res]
+        print("RES ------------------- ", res)
+        test_set.update(res)
+        split_name = res[INDEX_OF_HI_RES].split('/')
+        print("SAVED AS: {} \n".format(split_name[INDEX_OF_NAME]))
+
+
+        write_file(requests.get(res[INDEX_OF_HI_RES]), split_name[INDEX_OF_NAME])
+
+
 
 def make_url(user_name):
     page_url = 'https://'
@@ -54,7 +81,7 @@ def make_url(user_name):
     return page_url
 
 
-user_name = "dennyvixen" 
+user_name = "Burgunzik" 
 
 page_url = make_url(user_name)
 
@@ -63,19 +90,7 @@ CLASS_NAME_FOR_TAG_A = 'torpedo-thumb-link'
 TAG_A = 'a'
 tag_in_list = 'href'  
 links = search_pictures(page_url, TAG_A, class_name_one, CLASS_NAME_FOR_TAG_A, tag_in_list)
-
-# fetching 'src' from 'img' tag, todo: make to fn
-INDEX_OF_HI_RES = 0
-INDEX_OF_NAME = -1
-for link in links:
-    print("FETCHED LINK: ", link)    
-    url = fetch_html(link)
-    out_div = url.find("div", class_='dev-view-deviation')
-    res = [i['src'] for i in out_div.find_all("img", class_='dev-content-full')]
-    split_name = res[INDEX_OF_HI_RES].split('/')
-    print("SAVED AS: {} \n".format(split_name[INDEX_OF_NAME]))
-    
-    write_file(requests.get(res[INDEX_OF_HI_RES]), split_name[INDEX_OF_NAME])
+   
 
 json_request= {
 "username" : "",
@@ -94,7 +109,7 @@ json_request["_csrf"] = csrf['csrf']
 print(json_request)
 
 
-link_set = set()
+href_set = set()
 offset_counter = 0
 temp_counter = 0
 while True:
@@ -105,7 +120,7 @@ while True:
     if len(out_div2) == 0:
         break
     else:
-        link_set.update(out_div2)
+        href_set.update(out_div2)
 
     offset_counter += 24
     json_request["offset"] = str(offset_counter)
@@ -113,8 +128,12 @@ while True:
     temp_counter += 1
     print("TEMP COUNTER ------------------- ", temp_counter)
 
-print(link_set)
-print("LEN ---------------- ", len(link_set))
+print(href_set)
+print("LEN ---------------- ", len(href_set))
+
+fetch_src(href_set)
+
+
 print("-" * 50)
 print("OK")
 
