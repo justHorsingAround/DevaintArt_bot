@@ -15,6 +15,15 @@ def write_file(download, file_name):
                 fd.write(chunk)
 
 
+def write_log(user_name, download_link):
+    with open("download_log.txt", 'a') as af:
+        af.write(user_name)
+        af.write(';')
+        af.write(download_link)
+        af.write('\n')
+        print("Download logged!\n")
+
+
 def fetch_html(page_url):
     da_page = requests.get(page_url)    
     mysoup = BeautifulSoup(da_page.text, 'html.parser')
@@ -74,11 +83,9 @@ def fetch_href(page_url, json_request, HEADER):
     return href_set
     
 
-def fetch_src(links, user_name):
+def fetch_src(links, user_name, already_downloaded):
     INDEX_OF_HI_RES = 0
-    INDEX_OF_NAME = -1
-
-    test_set = set()
+    INDEX_OF_NAME = -1    
     saved_file_counter = 1
     all_links = len(links)
 
@@ -94,14 +101,17 @@ def fetch_src(links, user_name):
             continue
         res = [j['src'] for j in res]
         print("SRC ------------------- ", res)
-        test_set.update(res)
+        if res[INDEX_OF_HI_RES] in already_downloaded:
+            print("This file has already been downloaded!\n")
+            continue
         split_name = res[INDEX_OF_HI_RES].split('/')
         filepath = ".\\" + user_name + '\\' + split_name[INDEX_OF_NAME]
         if not os.path.exists(user_name):
             os.makedirs(user_name)        
-        print("SAVED AS: {} \n".format(filepath))
+        print("SAVED AS: {}".format(filepath))
 
         write_file(requests.get(res[INDEX_OF_HI_RES]), filepath)
+        write_log = (user_name, res[INDEX_OF_HI_RES])
 
 
 def make_url(user_name):
@@ -116,11 +126,22 @@ def make_url(user_name):
     return url_list
 
 
+def read_log():
+    record = []
+    INDEX_OF_LOGGED_URL = 1
+    if os.path.isfile("download_log.txt"):
+        with open("download_log.txt", 'r') as rf:
+            for line in rf:
+                readed = line.strip('\n').split(';')
+                record.append(readed[INDEX_OF_LOGGED_URL])        
+    return record
+
+
 user_name = input("\nPlase enter the user's name (make sure it's correct): ")
 page_url = make_url(user_name)
 
-class_name_one = 'folderview-art'  # dead code
-tag_in_list = 'href'  # dead code
+#class_name_one = 'folderview-art'  # dead code
+#tag_in_list = 'href'  # dead code
 #links = search_pictures(page_url, TAG_A, class_name_one, CLASS_NAME_FOR_TAG_A, tag_in_list)  # not needed, json will od the job
 
 json_request= {
@@ -157,7 +178,8 @@ href_set.update(scrap_href_set)
 print(href_set)
 print("\nNUMBER OF LINKS FOUND ---------------- {}\n".format(len(href_set)))
 
-fetch_src(href_set, user_name)  # also write_file temporary
+already_downloaded = read_log()
+fetch_src(href_set, user_name, already_downloaded)  # also write_file temporary
 
 print("-" * 50)
 print("OK")
