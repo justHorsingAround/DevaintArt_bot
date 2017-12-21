@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import json
+import os
 
 
 def download(result):  # dead code
@@ -46,31 +47,61 @@ def fetch_csrf(url):
                     csrf = dict(csrf)
     return csrf
 
-def fetch_src(links):
+def fetch_href(page_url, json_request, HEADER):
+    CLASS_NAME_FOR_TAG_A = 'torpedo-thumb-link'
+    TAG_A = 'a'
+    OFFSET = 24
+    offset_counter = 0
+    response_counter = 1
+    href_set = set()
+    while True:
+        req = requests.post(page_url, data=json_request, headers=HEADER)
+        print("RESPONSE GET ------------------- No. ", response_counter)
+        print("STATUS CODE  --  ", req)
+        json_soup = BeautifulSoup(req.text, 'html.parser')
+        out_div2 = [i['href'] for i in json_soup.find_all(TAG_A, class_= CLASS_NAME_FOR_TAG_A)]
+        if len(out_div2) == 0:
+            print("RESPONSE GOT WITH NO VALUABLE DATA! REQUESTING FINISHED")
+            break
+        else:
+            href_set.update(out_div2)
+            
+            offset_counter += OFFSET
+            json_request["offset"] = str(offset_counter)   
+        
+            response_counter += 1
+    return href_set
+    
+
+def fetch_src(links, user_name):
     INDEX_OF_HI_RES = 0
     INDEX_OF_NAME = -1
 
     test_set = set()
-    test_counter = 1
+    saved_file_counter = 1
+    all_links = len(links)
 
     for link in links:
-        print("NUMBER :: ", test_counter)
-        test_counter += 1
+        print("NUMBER :: {}    PROGRESS :: {}%".format(saved_file_counter, round((saved_file_counter/all_links)*100, 1)))
+        saved_file_counter += 1
         print("FETCHED LINK: ", link)    
         soup_for_img_serach = fetch_html(link)
         out_div = soup_for_img_serach.find("div", class_='dev-view-deviation')
         res = [i for i in out_div.find_all("img", class_='dev-content-full')]
         if not res:
-            print("This is not a picture or NSFW content")
+            print("This is not a picture or NSFW content\n")
             continue
         res = [j['src'] for j in res]
-        print("RES ------------------- ", res)
+        print("SRC ------------------- ", res)
         test_set.update(res)
         split_name = res[INDEX_OF_HI_RES].split('/')
-        print("SAVED AS: {} \n".format(split_name[INDEX_OF_NAME]))
+        filepath = ".\\" + user_name + '\\' + split_name[INDEX_OF_NAME]
+        if not os.path.exists(user_name):
+            os.makedirs(user_name)        
+        print("SAVED AS: {} \n".format(filepath))
 
 
-        write_file(requests.get(res[INDEX_OF_HI_RES]), split_name[INDEX_OF_NAME])
+        write_file(requests.get(res[INDEX_OF_HI_RES]), filepath)
 
 
 
@@ -81,16 +112,12 @@ def make_url(user_name):
     return page_url
 
 
-user_name = "Burgunzik" 
-
+user_name = input("\nPlase enter the user's name (make sure it's correct): ")
 page_url = make_url(user_name)
 
-class_name_one = 'folderview-art'  # dead code 
-CLASS_NAME_FOR_TAG_A = 'torpedo-thumb-link'
-TAG_A = 'a'
-tag_in_list = 'href'  
-links = search_pictures(page_url, TAG_A, class_name_one, CLASS_NAME_FOR_TAG_A, tag_in_list)
-   
+class_name_one = 'folderview-art'  # dead code
+tag_in_list = 'href'  # dead code
+#links = search_pictures(page_url, TAG_A, class_name_one, CLASS_NAME_FOR_TAG_A, tag_in_list)  # dead code
 
 json_request= {
 "username" : "",
@@ -108,36 +135,11 @@ json_request["username"] = user_name
 json_request["_csrf"] = csrf['csrf']
 print(json_request)
 
-
-href_set = set()
-offset_counter = 0
-temp_counter = 0
-while True:
-    req = requests.post(page_url, data=json_request, headers=HEADER)
-    print("REQUEST --  ", req)
-    json_soup = BeautifulSoup(req.text, 'html.parser')
-    out_div2 = [i['href'] for i in json_soup.find_all(TAG_A, class_= CLASS_NAME_FOR_TAG_A)]
-    if len(out_div2) == 0:
-        break
-    else:
-        href_set.update(out_div2)
-
-    offset_counter += 24
-    json_request["offset"] = str(offset_counter)
-
-    temp_counter += 1
-    print("TEMP COUNTER ------------------- ", temp_counter)
-
+href_set = fetch_href(page_url, json_request, HEADER)
 print(href_set)
-print("LEN ---------------- ", len(href_set))
+print("LEN OF 'HREF' SET ---------------- ", len(href_set))
 
-fetch_src(href_set)
-
+fetch_src(href_set, user_name)
 
 print("-" * 50)
 print("OK")
-
-
-
-
-
