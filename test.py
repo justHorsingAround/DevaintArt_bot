@@ -47,6 +47,7 @@ def fetch_csrf(url):
                     csrf = dict(csrf)
     return csrf
 
+
 def fetch_href(page_url, json_request, HEADER):
     CLASS_NAME_FOR_TAG_A = 'torpedo-thumb-link'
     TAG_A = 'a'
@@ -56,8 +57,8 @@ def fetch_href(page_url, json_request, HEADER):
     href_set = set()
     while True:
         req = requests.post(page_url, data=json_request, headers=HEADER)
-        print("RESPONSE GET ------------------- No. ", response_counter)
-        print("STATUS CODE  --  ", req)
+        print("RESPONSE GET ------------------------ No. ", response_counter)
+        print("STATUS CODE -- ", req)
         json_soup = BeautifulSoup(req.text, 'html.parser')
         out_div2 = [i['href'] for i in json_soup.find_all(TAG_A, class_= CLASS_NAME_FOR_TAG_A)]
         if len(out_div2) == 0:
@@ -100,16 +101,19 @@ def fetch_src(links, user_name):
             os.makedirs(user_name)        
         print("SAVED AS: {} \n".format(filepath))
 
-
         write_file(requests.get(res[INDEX_OF_HI_RES]), filepath)
 
 
-
 def make_url(user_name):
+    url_list = []
     page_url = 'https://'
     page_url += user_name.lower()
     page_url += '.deviantart.com/gallery/?catpath=/'
-    return page_url
+    url_list.append(page_url)
+
+    scrap_gallery = page_url[:-1] + 'scraps'
+    url_list.append(scrap_gallery)
+    return url_list
 
 
 user_name = input("\nPlase enter the user's name (make sure it's correct): ")
@@ -117,7 +121,7 @@ page_url = make_url(user_name)
 
 class_name_one = 'folderview-art'  # dead code
 tag_in_list = 'href'  # dead code
-#links = search_pictures(page_url, TAG_A, class_name_one, CLASS_NAME_FOR_TAG_A, tag_in_list)  # dead code
+#links = search_pictures(page_url, TAG_A, class_name_one, CLASS_NAME_FOR_TAG_A, tag_in_list)  # not needed, json will od the job
 
 json_request= {
 "username" : "",
@@ -128,18 +132,32 @@ json_request= {
 
 USER_AGEN = "Mozilla/5.0 (Windows NT 10.0;...) Gecko/20100101 Firefox/57.0"
 HEADER = {"user_agen" : USER_AGEN}
+INDEX_OF_MAIN_GALLERY = 0
+INDEX_OF_SCRAP_GALLERY = 1
 
-csrf = fetch_csrf(page_url)
+csrf = fetch_csrf(page_url[INDEX_OF_MAIN_GALLERY])
 print(csrf)
 json_request["username"] = user_name
 json_request["_csrf"] = csrf['csrf']
 print(json_request)
 
-href_set = fetch_href(page_url, json_request, HEADER)
-print(href_set)
-print("LEN OF 'HREF' SET ---------------- ", len(href_set))
+href_set = fetch_href(page_url[INDEX_OF_MAIN_GALLERY], json_request, HEADER)
 
-fetch_src(href_set, user_name)
+csrf = fetch_csrf(page_url[INDEX_OF_SCRAP_GALLERY])
+print(csrf)
+json_request["username"] = user_name
+json_request["offset"] = "0"
+json_request["catpath"] = "scraps"
+json_request["_csrf"] = csrf['csrf']
+print(json_request)
+
+scrap_href_set = fetch_href(page_url[INDEX_OF_SCRAP_GALLERY], json_request, HEADER)
+
+href_set.update(scrap_href_set)
+print(href_set)
+print("\nNUMBER OF LINKS FOUND ---------------- {}\n".format(len(href_set)))
+
+fetch_src(href_set, user_name)  # also write_file temporary
 
 print("-" * 50)
 print("OK")
