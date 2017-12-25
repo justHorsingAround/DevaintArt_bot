@@ -104,7 +104,7 @@ def fetch_src(links, user_name, already_downloaded):
                 print("This file has already been downloaded!\n")
                 continue
             split_name = res[INDEX_OF_HI_RES].split('/')
-            filepath = ".\\" + user_name + '\\' + split_name[INDEX_OF_NAME]
+            filepath = "./" + user_name + "/" + split_name[INDEX_OF_NAME]
             if not os.path.exists(user_name):
                 os.makedirs(user_name)        
             
