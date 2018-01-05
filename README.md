@@ -38,10 +38,10 @@ If you replace the main.py, please move this file with that, or the program will
 
 RESPONSE GET ------------------------ No.  (number)
 STATUS CODE --  (http status code)
-The code asking data from the server. Due to the DA1s limitation, the server send only 24 picture at once, therefore the code will make another request while there are more pictures in the gallery. The (number) is the number of the package, the (http status code) is obvious. 
+The code asking data from the server. Due to the DA1s limitation, the server send only 24 picture at once, therefore the code will make another request while there are more pictures in the gallery. The (number) is the number of the package, the (http status code) is obvious.
 If there are no more picture in the gallery, the server will not send data, and you will see an "RESPONSE GOT WITH NO VALUABLE DATA! REQUESTING FINISHED" message.
 If the status code is "200", but you don't get any data, it means the gallery is empty.
-If the status code is "404", then you most likely mistyped the artist's name. Or simply not connected to the internet.
+If the status code is "404", then you most likely mistyped the artist's name. Or simply connection problem.
 
 After that will give you the found link.
 
@@ -62,7 +62,7 @@ Inform you if the file is succesfull downloaded, and where can you find it (plea
 
 Alternative messages instead of "SAVED AS:"
   - "This file has already been downloaded!"
-    It means the file has been downloaded previously. Will not download again. If you wish to download again you need to open the "download_log.txt" file, manually delete the source link(s), and run the porgram again with the same user name.
+    It means the file has been downloaded previously. Will not download again. If you wish to download again you need to open the "download_log.txt" file, manually delete the source link(s), and run the program again with the same user name.
 
   - "This is not a picture or NSFW content"
     The program does not download NSFW pictures or non-pictures.
