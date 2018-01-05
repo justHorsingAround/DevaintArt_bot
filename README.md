@@ -36,28 +36,28 @@ If you replace the main.py, please move this file with that, or the program will
 
 **** Messages ****
 
-RESPONSE GET ------------------------ No.  <number>
-STATUS CODE --  <http status code>
-The code asking data from the server. Due to the DA1s limitation, the server send only 24 picture at once, therefore the code will make another request while there are more pictures in the gallery. The <number> is the number of the package, the <http status code> is obvious. 
+RESPONSE GET ------------------------ No.  (number)
+STATUS CODE --  (http status code)
+The code asking data from the server. Due to the DA1s limitation, the server send only 24 picture at once, therefore the code will make another request while there are more pictures in the gallery. The (number) is the number of the package, the (http status code) is obvious. 
 If there are no more picture in the gallery, the server will not send data, and you will see an "RESPONSE GOT WITH NO VALUABLE DATA! REQUESTING FINISHED" message.
 If the status code is "200", but you don't get any data, it means the gallery is empty.
 If the status code is "404", then you most likely mistyped the artist's name. Or simply not connected to the internet.
 
 After that will give you the found link.
 
-NUMBER OF LINKS FOUND ---------------- <number>
+NUMBER OF LINKS FOUND ---------------- (number)
 Total number of links found.
 
-NUMBER :: <number>    PROGRESS :: <percantage>
+NUMBER :: (number)    PROGRESS :: (percantage)
 Inform you about the progress and how many picture is processed so far.
 
-FETCHED LINK:  <link>
+FETCHED LINK:  (link)
 Inform you that the code started to search the source link.
 
-DOWNLOADING ------------------- [<link>]
+DOWNLOADING ------------------- [(link)]
 Inform you if the source link is found, check if the file was downloaded or not previously, starting to download if not.
 
-SAVED AS: <filepath and name>
+SAVED AS: (filepath and name)
 Inform you if the file is succesfull downloaded, and where can you find it (please note it's a realtive path, start the searching in folder where your main.py file is placed)
 
 Alternative messages instead of "SAVED AS:"
@@ -67,7 +67,7 @@ Alternative messages instead of "SAVED AS:"
   - "This is not a picture or NSFW content"
     The program does not download NSFW pictures or non-pictures.
 
-  - "Failed to download: Error <http status code> "
+  - "Failed to download: Error (http status code) "
     Failed to download due to a connection error. You can try again by running the program later.
 
 "Download logged!"
