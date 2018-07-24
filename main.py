@@ -4,11 +4,6 @@ import json
 import os
 
 
-def download(result):  # dead code
-    download = requests.get(result[0]['href'])
-    return download
-
-
 def write_file(download, file_name):
     with open(file_name, 'wb') as fd:
             for chunk in download.iter_content(chunk_size=4096):
@@ -30,7 +25,8 @@ def fetch_html(page_url):
     return mysoup
     
 
-def search_pictures(url, class_tag, class_name_one, class_name_two, tag_in_list):  # not needed, delete later, json_request will do the job
+ # deprecated, json_request will do the job
+def search_pictures(url, class_tag, class_name_one, class_name_two, tag_in_list): 
     DIV = "div"
     soup = fetch_html(url)
     outer_div = soup.find(DIV, class_="torpedo-container")
@@ -152,9 +148,6 @@ while user_name == "":
 
 page_url = make_url(user_name)
 
-#class_name_one = 'folderview-art'  # dead code
-#tag_in_list = 'href'  # dead code
-#links = search_pictures(page_url, TAG_A, class_name_one, CLASS_NAME_FOR_TAG_A, tag_in_list)  # not needed, json will od the job
 
 json_request= {
 "username" : "",
@@ -191,7 +184,7 @@ print(href_set)
 print("\nNUMBER OF LINKS FOUND ---------------- {}\n".format(len(href_set)))
 
 already_downloaded = read_log()
-fetch_src(href_set, user_name, already_downloaded)  # also write_file temporary
+fetch_src(href_set, user_name, already_downloaded)  # write file with this temporary
 
 print("-" * 50)
 print("OK")
